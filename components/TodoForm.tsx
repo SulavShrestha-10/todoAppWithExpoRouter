@@ -7,15 +7,17 @@ import { v4 as uuidv4 } from "uuid";
 import { Todo } from "../models/Todo";
 import { generateTodoSchema } from "../validations/TodoForm";
 import DatePicker from "./DatePicker";
-import { addDoc, collection, setDoc } from "firebase/firestore";
+import { addDoc, collection, doc, setDoc, updateDoc } from "firebase/firestore";
 import { FIREBASE_DB } from "../firebaseConfig";
 import "react-native-get-random-values";
 
 interface TodoFormProps {
 	onDismiss: () => void;
+	todoData: Todo;
+	editing: boolean;
 }
 
-const TodoForm = forwardRef<BottomSheetModal | null, TodoFormProps>(({ onDismiss }, ref) => {
+const TodoForm = forwardRef<BottomSheetModal | null, TodoFormProps>(({ onDismiss, todoData, editing }, ref) => {
 	const inset = useSafeAreaInsets();
 
 	const renderBackdrop = useCallback(
@@ -25,9 +27,9 @@ const TodoForm = forwardRef<BottomSheetModal | null, TodoFormProps>(({ onDismiss
 	const [selectedDate, setSelectedDate] = useState(new Date());
 	const snapPoints = useMemo(() => ["50%"], []);
 
-	const onSubmit = async () => {
-		await addDoc(collection(FIREBASE_DB, "todos"), {});
-	};
+	// const onSubmit = async () => {
+	// 	await addDoc(collection(FIREBASE_DB, "todos"), {});
+	// };
 	const fieldLabels = {
 		title: "Title",
 		description: "Description",
@@ -36,24 +38,34 @@ const TodoForm = forwardRef<BottomSheetModal | null, TodoFormProps>(({ onDismiss
 	const { handleChange, handleSubmit, handleBlur, values, errors, touched, setFieldValue, resetForm } = useFormik({
 		validationSchema: generateTodoSchema(fieldLabels),
 		initialValues: {
-			title: "",
-			description: "",
-			date: new Date().toISOString(),
-			done: false,
+			title: todoData?.title ?? "",
+			description: todoData?.description ?? "",
+			date: todoData?.date ?? new Date().toISOString(),
+			done: todoData?.done ?? false,
 		},
 		onSubmit: async (values) => {
-			const docRef = await addDoc(collection(FIREBASE_DB, "todos"), values);
-			const payload: Todo = {
-				id: docRef.id, 
-				userId: uuidv4(),
-				title: values.title,
-				date: values.date,
-				description: values.description,
-				done: false,
-			};
-			onDismiss();
-			await setDoc(docRef, payload, { merge: true }); 
-			console.log(payload);
+			if (editing && todoData) {
+				const todoRef = doc(FIREBASE_DB, `todos/${todoData.id}`);
+				await updateDoc(todoRef, {
+					title: values.title,
+					description: values.description,
+					date: values.date,
+					done: values.done,
+				});
+			} else {
+				const docRef = await addDoc(collection(FIREBASE_DB, "todos"), values);
+				const payload: Todo = {
+					id: docRef.id,
+					userId: uuidv4(),
+					title: values.title,
+					date: values.date,
+					description: values.description,
+					done: false,
+				};
+				onDismiss();
+				await setDoc(docRef, payload, { merge: true });
+				console.log(payload);
+			}
 		},
 	});
 	return (
@@ -89,7 +101,7 @@ const TodoForm = forwardRef<BottomSheetModal | null, TodoFormProps>(({ onDismiss
 
 						<Text style={styles.label}>{fieldLabels.date}</Text>
 						<DatePicker
-							selectedDate={selectedDate}
+							selectedDate={new Date(values?.date)}
 							onDateChange={(date) => {
 								setSelectedDate(date);
 								setFieldValue("date", date.toISOString());

@@ -2,7 +2,7 @@ import { AntDesign, Entypo } from "@expo/vector-icons";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { addDays, format, isSameDay, isToday, isTomorrow } from "date-fns";
 import { useRouter } from "expo-router";
-import { collection, deleteDoc, doc, onSnapshot, updateDoc } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import React, { useEffect, useRef, useState } from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { ScrollView } from "react-native-virtualized-view";
@@ -10,9 +10,21 @@ import TodoForm from "../../../components/TodoForm";
 import { FIREBASE_DB } from "../../../firebaseConfig";
 import { Todo } from "../../../models/Todo";
 
+const initialTodoState: Todo = {
+	id: "",
+	title: "",
+	description: "",
+	date: new Date().toISOString(),
+	userId: "",
+	done: false,
+};
+
 const List = () => {
-	const router = useRouter();
 	const [todos, setTodos] = useState<Todo[]>([]);
+	const [editing, setEditing] = useState(false);
+	const [todo, setTodo] = useState<Todo>(initialTodoState);
+
+	const [id, setId] = useState("");
 	const bottomSheetRef = useRef<BottomSheetModal>(null);
 	const [isFormVisible, setIsFormVisible] = useState(false);
 	useEffect(() => {
@@ -23,6 +35,7 @@ const List = () => {
 
 	const handleOpenModal = () => {
 		setIsFormVisible(true);
+		// bottomSheetRef.current?.present();
 	};
 	useEffect(() => {
 		const todosRef = collection(FIREBASE_DB, "todos");
@@ -50,11 +63,32 @@ const List = () => {
 			formattedDate = format(todoDate, "EEEE, MMMM dd, yyyy, hh:mm a");
 		}
 		const todoRef = doc(FIREBASE_DB, `todos/${item.id}`);
+		const fetchTodoData = async () => {
+			try {
+				const docSnapshot = await getDoc(todoRef);
+				if (docSnapshot.exists()) {
+					const todoData = docSnapshot.data() as Todo;
+					setTodo(todoData);
+					handleOpenModal();
+					console.log("Todo data:", todoData);
+				} else {
+					console.log("No such document!");
+				}
+			} catch (error) {
+				console.error("Error getting todo document:", error);
+			}
+		};
+
 		const toggleDone = async () => {
 			updateDoc(todoRef, { done: !item.done });
 		};
 		const deleteItem = async () => {
 			deleteDoc(todoRef);
+		};
+		const editItem = async () => {
+			setEditing(true);
+			setId(item.id);
+			fetchTodoData();
 		};
 		return (
 			<View>
@@ -67,13 +101,7 @@ const List = () => {
 							<Text style={{ fontSize: 12 }}>{formattedDate}</Text>
 						</View>
 					</TouchableOpacity>
-					<AntDesign
-						name="edit"
-						size={30}
-						color="black"
-						style={{ marginRight: 5 }}
-						onPress={() => console.log("Edit")}
-					/>
+					<AntDesign name="edit" size={30} color="black" style={{ marginRight: 5 }} onPress={() => editItem()} />
 					<AntDesign
 						name="delete"
 						size={30}
@@ -118,7 +146,9 @@ const List = () => {
 				<TouchableOpacity style={styles.button} onPress={() => handleOpenModal()}>
 					<Text style={styles.buttonText}>Open</Text>
 				</TouchableOpacity>
-				{isFormVisible && <TodoForm ref={bottomSheetRef} onDismiss={() => setIsFormVisible(false)} />}
+				{isFormVisible && (
+					<TodoForm editing={editing} todoData={todo} ref={bottomSheetRef} onDismiss={() => setIsFormVisible(false)} />
+				)}
 			</View>
 		</ScrollView>
 	);

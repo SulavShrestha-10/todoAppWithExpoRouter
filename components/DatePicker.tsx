@@ -20,7 +20,6 @@ function DatePicker({ selectedDate, onDateChange }: DatePickerProps) {
 	};
 
 	const handleConfirm = (date: Date) => {
-		console.log(date);
 		onDateChange(date);
 		hideDatePicker();
 	};
@@ -46,7 +45,7 @@ function DatePicker({ selectedDate, onDateChange }: DatePickerProps) {
 				<AntDesign name="calendar" size={24} color="black" />
 			</Pressable>
 			<DateTimePickerModal
-				date={selectedDate}
+				date={new Date(selectedDate)}
 				minimumDate={new Date()}
 				isVisible={datePickerVisible}
 				mode="datetime"
