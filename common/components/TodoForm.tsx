@@ -1,15 +1,15 @@
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
+import { addDoc, collection, doc, setDoc, updateDoc } from "firebase/firestore";
 import { useFormik } from "formik";
 import React, { forwardRef, useCallback, useMemo, useState } from "react";
 import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import "react-native-get-random-values";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { v4 as uuidv4 } from "uuid";
+import { FIREBASE_DB } from "../../firebaseConfig";
+import DatePicker from "./DatePicker";
 import { Todo } from "../models/Todo";
 import { generateTodoSchema } from "../validations/TodoForm";
-import DatePicker from "./DatePicker";
-import { addDoc, collection, doc, setDoc, updateDoc } from "firebase/firestore";
-import { FIREBASE_DB } from "../firebaseConfig";
-import "react-native-get-random-values";
 
 interface TodoFormProps {
 	onDismiss: () => void;
@@ -101,7 +101,9 @@ const TodoForm = forwardRef<BottomSheetModal | null, TodoFormProps>(({ onDismiss
 
 						<Text style={styles.label}>{fieldLabels.date}</Text>
 						<DatePicker
+							minimumDate={new Date()}
 							selectedDate={new Date(values?.date)}
+							mode="datetime"
 							onDateChange={(date) => {
 								setSelectedDate(date);
 								setFieldValue("date", date.toISOString());

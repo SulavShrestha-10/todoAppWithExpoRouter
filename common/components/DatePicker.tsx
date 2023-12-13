@@ -4,11 +4,13 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { AntDesign } from "@expo/vector-icons";
 
 interface DatePickerProps {
+	minimumDate?: Date;
 	selectedDate: Date;
+	mode: "time" | "date" | "datetime" | undefined;
 	onDateChange: (date: Date) => void;
 }
 
-function DatePicker({ selectedDate, onDateChange }: DatePickerProps) {
+function DatePicker({ minimumDate, selectedDate, onDateChange, mode }: DatePickerProps) {
 	const [datePickerVisible, setDatePickerVisible] = useState(false);
 
 	const showDatePicker = () => {
@@ -41,14 +43,18 @@ function DatePicker({ selectedDate, onDateChange }: DatePickerProps) {
 					marginVertical: 10,
 				}}
 				onPress={showDatePicker}>
-				<TextInput value={selectedDate.toLocaleString()} style={{ flex: 1 }} editable={false} />
+				<TextInput
+					value={mode === "date" ? selectedDate.toLocaleDateString() : selectedDate.toLocaleDateString()}
+					style={{ flex: 1 }}
+					editable={false}
+				/>
 				<AntDesign name="calendar" size={24} color="black" />
 			</Pressable>
 			<DateTimePickerModal
 				date={new Date(selectedDate)}
-				minimumDate={new Date()}
+				minimumDate={minimumDate}
 				isVisible={datePickerVisible}
-				mode="datetime"
+				mode={mode}
 				onConfirm={handleConfirm}
 				onCancel={hideDatePicker}
 			/>

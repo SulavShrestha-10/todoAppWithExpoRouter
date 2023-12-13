@@ -1,14 +1,13 @@
 import { AntDesign, Entypo } from "@expo/vector-icons";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { addDays, format, isSameDay, isToday, isTomorrow } from "date-fns";
-import { useRouter } from "expo-router";
 import { collection, deleteDoc, doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import React, { useEffect, useRef, useState } from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { ScrollView } from "react-native-virtualized-view";
-import TodoForm from "../../../components/TodoForm";
+import TodoForm from "../../../common/components/TodoForm";
+import { Todo } from "../../../common/models/Todo";
 import { FIREBASE_DB } from "../../../firebaseConfig";
-import { Todo } from "../../../models/Todo";
 
 const initialTodoState: Todo = {
 	id: "",
@@ -35,7 +34,6 @@ const List = () => {
 
 	const handleOpenModal = () => {
 		setIsFormVisible(true);
-		// bottomSheetRef.current?.present();
 	};
 	useEffect(() => {
 		const todosRef = collection(FIREBASE_DB, "todos");

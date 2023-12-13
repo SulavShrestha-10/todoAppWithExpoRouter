@@ -1,12 +1,18 @@
 import { useRouter } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { FIREBASE_AUTH } from "../../../firebaseConfig";
 
 const Menu = () => {
 	const router = useRouter();
 	return (
 		<View style={styles.container}>
-			<TouchableOpacity style={styles.button} onPress={() => router.replace("/")}>
+			<TouchableOpacity
+				style={styles.button}
+				onPress={() => {
+					FIREBASE_AUTH.signOut();
+					router.replace("/");
+				}}>
 				<Text style={styles.buttonText}>Logout</Text>
 			</TouchableOpacity>
 		</View>
