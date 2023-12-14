@@ -3,11 +3,12 @@ import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { addDays, format, isSameDay, isToday, isTomorrow } from "date-fns";
 import { collection, deleteDoc, doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import React, { useEffect, useRef, useState } from "react";
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { ScrollView } from "react-native-virtualized-view";
 import TodoForm from "../../../common/components/TodoForm";
 import { Todo } from "../../../common/models/Todo";
 import { FIREBASE_DB } from "../../../firebaseConfig";
+import { useAuth } from "../../../AuthContext";
 
 const initialTodoState: Todo = {
 	id: "",
@@ -19,22 +20,21 @@ const initialTodoState: Todo = {
 };
 
 const List = () => {
+	const { user } = useAuth();
+	const [loading, setLoading] = useState(true);
 	const [todos, setTodos] = useState<Todo[]>([]);
 	const [editing, setEditing] = useState(false);
 	const [todo, setTodo] = useState<Todo>(initialTodoState);
-
 	const [id, setId] = useState("");
 	const bottomSheetRef = useRef<BottomSheetModal>(null);
 	const [isFormVisible, setIsFormVisible] = useState(false);
+
 	useEffect(() => {
 		if (isFormVisible) {
 			bottomSheetRef.current?.present();
 		}
 	}, [isFormVisible]);
 
-	const handleOpenModal = () => {
-		setIsFormVisible(true);
-	};
 	useEffect(() => {
 		const todosRef = collection(FIREBASE_DB, "todos");
 		const subscriber = onSnapshot(todosRef, {
@@ -42,14 +42,20 @@ const List = () => {
 				const todos: Todo[] = [];
 				snapshot.docs.forEach((doc) => {
 					const todoData = doc.data() as Todo;
-					todos.push(todoData);
+					if (todoData.userId === user?.uid) {
+						todos.push(todoData);
+					}
 				});
 				setTodos(todos);
+				setLoading(false);
 			},
 		});
 		return () => subscriber();
 	}, []);
 
+	const handleOpenModal = () => {
+		setIsFormVisible(true);
+	};
 	const renderTodos = ({ item }: { item: Todo }) => {
 		const todoDate = new Date(item.date);
 		let formattedDate;
@@ -60,34 +66,31 @@ const List = () => {
 		} else {
 			formattedDate = format(todoDate, "EEEE, MMMM dd, yyyy, hh:mm a");
 		}
+
 		const todoRef = doc(FIREBASE_DB, `todos/${item.id}`);
-		const fetchTodoData = async () => {
-			try {
-				const docSnapshot = await getDoc(todoRef);
-				if (docSnapshot.exists()) {
-					const todoData = docSnapshot.data() as Todo;
-					setTodo(todoData);
-					handleOpenModal();
-					console.log("Todo data:", todoData);
-				} else {
-					console.log("No such document!");
-				}
-			} catch (error) {
-				console.error("Error getting todo document:", error);
-			}
-		};
 
 		const toggleDone = async () => {
 			updateDoc(todoRef, { done: !item.done });
 		};
+
 		const deleteItem = async () => {
 			deleteDoc(todoRef);
 		};
+
 		const editItem = async () => {
 			setEditing(true);
 			setId(item.id);
-			fetchTodoData();
+			const docSnapshot = await getDoc(todoRef);
+			if (docSnapshot.exists()) {
+				const todoData = docSnapshot.data() as Todo;
+				setTodo(todoData);
+				handleOpenModal();
+				console.log("Todo data:", todoData);
+			} else {
+				console.log("No such document!");
+			}
 		};
+
 		return (
 			<View>
 				<View style={styles.todoContainer}>
@@ -117,30 +120,34 @@ const List = () => {
 	const remainingTodos = todos.filter(
 		(todo) => !isSameDay(new Date(todo.date), new Date()) && !isSameDay(new Date(todo.date), addDays(new Date(), 1))
 	);
+	const allTodos = [
+		{ title: "Today", data: todayTodos },
+		{ title: "Tomorrow", data: tomorrowTodos },
+		{ title: "Later", data: remainingTodos },
+	];
+	const emptyView = () => {
+		return loading ? (
+			<ActivityIndicator animating={loading} size="large" color="#0000ff" />
+		) : (
+			<View style={{ flex: 1, alignItems: "center" }}>
+				<Text>No todos available!</Text>
+			</View>
+		);
+	};
 	return (
 		<ScrollView showsVerticalScrollIndicator={true}>
 			<View style={styles.container}>
-				<View>
-					{todayTodos.length > 0 && (
-						<View style={{ marginBottom: 15 }}>
-							<Text style={{ fontSize: 18, fontWeight: "bold" }}>Today</Text>
-							<FlatList data={todayTodos} renderItem={renderTodos} keyExtractor={(item) => item.id} />
-						</View>
-					)}
-
-					{tomorrowTodos.length > 0 && (
-						<View style={{ marginBottom: 15 }}>
-							<Text style={{ fontSize: 18, fontWeight: "bold" }}>Tomorrow</Text>
-							<FlatList data={tomorrowTodos} renderItem={renderTodos} keyExtractor={(item) => item.id} />
-						</View>
-					)}
-					{remainingTodos.length > 0 && (
-						<View style={{ marginBottom: 15 }}>
-							<Text style={{ fontSize: 18, fontWeight: "bold" }}>Later</Text>
-							<FlatList data={remainingTodos} renderItem={renderTodos} keyExtractor={(item) => item.id} />
-						</View>
-					)}
-				</View>
+				{allTodos.map((category) => (
+					<View key={category.title} style={{ marginBottom: 15 }}>
+						<Text style={{ fontSize: 18, fontWeight: "bold" }}>{category.title}</Text>
+						<FlatList
+							data={category.data}
+							renderItem={renderTodos}
+							keyExtractor={(item) => item.id}
+							ListEmptyComponent={emptyView}
+						/>
+					</View>
+				))}
 				<TouchableOpacity style={styles.button} onPress={() => handleOpenModal()}>
 					<Text style={styles.buttonText}>Open</Text>
 				</TouchableOpacity>

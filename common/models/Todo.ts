@@ -3,6 +3,6 @@ export interface Todo {
 	title: string;
 	description: string;
 	date: string;
-	userId: string;
+	userId: string | undefined;
 	done: boolean;
 }

@@ -1,14 +1,20 @@
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import { Stack } from "expo-router";
-import React from "react";
+import { Stack, useRouter } from "expo-router";
+import React, { useEffect } from "react";
 import { AuthProvider, useAuth } from "../AuthContext";
 
 const AuthNavigator = () => {
 	const { user } = useAuth();
+	const router = useRouter();
 	console.log("User: ", user);
+	useEffect(() => {
+		if (user) {
+			router.replace("/(tabs)/List");
+		}
+	}, [user, router]);
 
 	return (
-		<Stack initialRouteName="index">
+		<Stack>
 			{!user ? (
 				<Stack.Screen name="index" options={{ title: "Login" }} />
 			) : (

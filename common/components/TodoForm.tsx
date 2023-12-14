@@ -10,6 +10,7 @@ import { FIREBASE_DB } from "../../firebaseConfig";
 import DatePicker from "./DatePicker";
 import { Todo } from "../models/Todo";
 import { generateTodoSchema } from "../validations/TodoForm";
+import { useAuth } from "../../AuthContext";
 
 interface TodoFormProps {
 	onDismiss: () => void;
@@ -18,6 +19,7 @@ interface TodoFormProps {
 }
 
 const TodoForm = forwardRef<BottomSheetModal | null, TodoFormProps>(({ onDismiss, todoData, editing }, ref) => {
+	const { user } = useAuth();
 	const inset = useSafeAreaInsets();
 
 	const renderBackdrop = useCallback(
@@ -44,7 +46,7 @@ const TodoForm = forwardRef<BottomSheetModal | null, TodoFormProps>(({ onDismiss
 			done: todoData?.done ?? false,
 		},
 		onSubmit: async (values) => {
-			if (editing && todoData) {
+			if (editing) {
 				const todoRef = doc(FIREBASE_DB, `todos/${todoData.id}`);
 				await updateDoc(todoRef, {
 					title: values.title,
@@ -52,11 +54,12 @@ const TodoForm = forwardRef<BottomSheetModal | null, TodoFormProps>(({ onDismiss
 					date: values.date,
 					done: values.done,
 				});
+				onDismiss();
 			} else {
 				const docRef = await addDoc(collection(FIREBASE_DB, "todos"), values);
 				const payload: Todo = {
 					id: docRef.id,
-					userId: uuidv4(),
+					userId: user?.uid,
 					title: values.title,
 					date: values.date,
 					description: values.description,

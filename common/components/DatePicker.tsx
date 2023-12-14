@@ -44,7 +44,7 @@ function DatePicker({ minimumDate, selectedDate, onDateChange, mode }: DatePicke
 				}}
 				onPress={showDatePicker}>
 				<TextInput
-					value={mode === "date" ? selectedDate.toLocaleDateString() : selectedDate.toLocaleDateString()}
+					value={mode === "date" ? selectedDate.toLocaleDateString() : selectedDate.toLocaleString()}
 					style={{ flex: 1 }}
 					editable={false}
 				/>
