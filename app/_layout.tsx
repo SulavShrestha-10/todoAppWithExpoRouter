@@ -18,11 +18,11 @@ const AuthNavigator = () => {
 	}, [user, router]);
 
 	return (
-		<Stack>
+		<Stack screenOptions={{ headerShown: false }}>
 			{!user ? (
-				<Stack.Screen name="index" options={{ headerShown: false }} />
+				<Stack.Screen name="index" />
 			) : (
-				<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+				<Stack.Screen name="(tabs)"/>
 			)}
 		</Stack>
 	);
@@ -31,7 +31,6 @@ const AuthNavigator = () => {
 const Layout = () => {
 	const [fontsLoaded] = useFonts({
 		"Roboto-Regular": require("../assets/fonts/Roboto-Regular.ttf"),
-
 	});
 
 	if (!fontsLoaded) {

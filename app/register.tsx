@@ -8,10 +8,14 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { FIREBASE_AUTH, FIREBASE_DB } from "../firebaseConfig";
 import { doc, setDoc } from "firebase/firestore";
 import { useRouter } from "expo-router";
+import Header from "../common/components/Header";
+import { COLORS, FONTS } from "../common/constants/theme";
+import { Entypo } from "@expo/vector-icons";
 
 const RegisterPage = () => {
 	const auth = FIREBASE_AUTH;
 	const router = useRouter();
+	const [showPassword, setShowPassword] = useState(false);
 	const [selectedDate, setSelectedDate] = useState(new Date());
 	const fieldLabels = {
 		firstName: "First Name",
@@ -62,6 +66,7 @@ const RegisterPage = () => {
 	});
 	return (
 		<View style={styles.container}>
+			<Header title="Create an account" subTitle="Please enter your information to create your account" />
 			<Text style={styles.label}>{fieldLabels.firstName}</Text>
 			<TextInput
 				placeholder={fieldLabels.firstName}
@@ -98,18 +103,33 @@ const RegisterPage = () => {
 			/>
 
 			<Text style={styles.label}>{fieldLabels.password}</Text>
-			<TextInput
-				placeholder={fieldLabels.password}
-				style={styles.input}
-				onChangeText={handleChange("password")}
-				onBlur={handleBlur("password")}
-				value={values.password}
-				secureTextEntry
-				autoCapitalize="none"
-			/>
+			<View style={styles.input}>
+				<TextInput
+					placeholder={fieldLabels.password}
+					style={{ flex: 1 }}
+					onChangeText={handleChange("password")}
+					onBlur={handleBlur("password")}
+					value={values.password}
+					autoCapitalize="none"
+					secureTextEntry={!showPassword}
+				/>
+				<TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+					{showPassword ? (
+						<Entypo name="eye-with-line" size={24} color="black" />
+					) : (
+						<Entypo name="eye" size={24} color="black" />
+					)}
+				</TouchableOpacity>
+			</View>
 			<TouchableOpacity style={styles.button} onPress={() => handleSubmit()}>
 				<Text style={styles.buttonText}>Register</Text>
 			</TouchableOpacity>
+			<View style={styles.registerContainer}>
+				<Text style={styles.registerText}>Already have an account?</Text>
+				<TouchableOpacity style={styles.registerButton} onPress={() => router.replace("/")}>
+					<Text style={styles.registerButtonText}>Sign in</Text>
+				</TouchableOpacity>
+			</View>
 		</View>
 	);
 };
@@ -117,6 +137,7 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		paddingHorizontal: 20,
+		backgroundColor: COLORS.background,
 	},
 	contentContainer: {
 		flex: 1,
@@ -125,11 +146,13 @@ const styles = StyleSheet.create({
 		paddingBottom: 20,
 	},
 	input: {
+		flexDirection: "row",
 		width: "100%",
 		borderWidth: 1,
-		borderRadius: 5,
+		borderRadius: 10,
 		padding: 10,
 		marginVertical: 10,
+		fontFamily: FONTS.roboto,
 	},
 	datePicker: {
 		flexDirection: "row",
@@ -140,11 +163,12 @@ const styles = StyleSheet.create({
 	},
 	label: {
 		fontSize: 16,
+		fontFamily: FONTS.roboto,
 		fontWeight: "bold",
 	},
 	button: {
-		backgroundColor: "#274690",
-		borderRadius: 5,
+		backgroundColor: COLORS.button,
+		borderRadius: 10,
 		padding: 10,
 		alignItems: "center",
 		justifyContent: "center",
@@ -154,6 +178,24 @@ const styles = StyleSheet.create({
 	buttonText: {
 		color: "#fff",
 		textAlign: "center",
+		fontFamily: FONTS.roboto,
+	},
+	registerContainer: {
+		flexDirection: "row",
+		justifyContent: "center",
+		marginTop: 15,
+	},
+	registerText: {
+		fontSize: 16,
+		fontFamily: FONTS.roboto,
+	},
+	registerButton: {
+		marginLeft: 5,
+	},
+	registerButtonText: {
+		fontSize: 16,
+		color: "#274690",
+		fontWeight: "bold",
 	},
 });
 export default RegisterPage;
