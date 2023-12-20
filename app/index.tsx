@@ -56,7 +56,7 @@ const Page = () => {
 			<View style={styles.input}>
 				<TextInput
 					placeholder={fieldLabels.password}
-					style={{ flex: 1 }}
+					style={{ flex: 1, fontFamily: FONTS.roboto }}
 					onChangeText={handleChange("password")}
 					onBlur={handleBlur("password")}
 					value={values.password}

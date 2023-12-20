@@ -3,8 +3,8 @@ import React from "react";
 
 const Layout = () => {
 	return (
-		<Stack>
-			<Stack.Screen name="index" options={{ title: "My Todos" }} />	
+		<Stack screenOptions={{ headerShown: false }}>
+			<Stack.Screen name="index" />
 		</Stack>
 	);
 };

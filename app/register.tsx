@@ -66,7 +66,10 @@ const RegisterPage = () => {
 	});
 	return (
 		<View style={styles.container}>
-			<Header title="Create an account" subTitle="Please enter your information to create your account" />
+			<Header
+				title="Create an account"
+				subTitle="Please enter your information to create your account"
+			/>
 			<Text style={styles.label}>{fieldLabels.firstName}</Text>
 			<TextInput
 				placeholder={fieldLabels.firstName}
@@ -106,7 +109,7 @@ const RegisterPage = () => {
 			<View style={styles.input}>
 				<TextInput
 					placeholder={fieldLabels.password}
-					style={{ flex: 1 }}
+					style={{ flex: 1, fontFamily: FONTS.roboto }}
 					onChangeText={handleChange("password")}
 					onBlur={handleBlur("password")}
 					value={values.password}

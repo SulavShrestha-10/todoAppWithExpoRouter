@@ -3,12 +3,14 @@ import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { addDays, format, isAfter, isBefore, isSameDay, isToday, isTomorrow } from "date-fns";
 import { collection, deleteDoc, doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import React, { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View, SafeAreaView } from "react-native";
 import { ScrollView } from "react-native-virtualized-view";
 import { useAuth } from "../../../AuthContext";
 import TodoForm from "../../../common/components/TodoForm";
 import { Todo } from "../../../common/models/Todo";
 import { FIREBASE_DB } from "../../../firebaseConfig";
+import { COLORS, FONTS } from "../../../common/constants/theme";
+import Header from "../../../common/components/Header";
 
 const initialTodoState: Todo = {
 	id: "",
@@ -107,8 +109,10 @@ const List = () => {
 							<Text style={{ fontSize: 12 }}>{formattedDate}</Text>
 						</View>
 					</TouchableOpacity>
-					<AntDesign name="edit" size={30} color="black" style={{ marginRight: 5 }} onPress={() => editItem()} />
-					<AntDesign
+					{!item.done && (
+						<AntDesign name="edit" size={30} color="black" style={{ marginRight: 5 }} onPress={() => editItem()} />
+					)}
+					<AntDes
 						name="delete"
 						size={30}
 						color="red"
@@ -166,7 +170,7 @@ const List = () => {
 								)
 						)}
 						{todos.length === 0 && (
-							<Text style={{ fontSize: 18, fontWeight: "bold", textAlign: "center" }}>
+							<Text style={{ fontSize: 18, fontWeight: "bold", textAlign: "center", fontFamily: FONTS.roboto }}>
 								Add your todos to view them in the list.
 							</Text>
 						)}
@@ -177,23 +181,23 @@ const List = () => {
 	};
 
 	return (
-		<ScrollView showsVerticalScrollIndicator={true}>
-			<View style={styles.container}>
-				{renderData()}
-				<TouchableOpacity style={styles.button} onPress={() => handleOpenModal()}>
-					<Text style={styles.buttonText}>Open</Text>
-				</TouchableOpacity>
-				{isFormVisible && (
-					<TodoForm
-						setFetching={setfetching}
-						editing={editing}
-						todoData={todo}
-						ref={bottomSheetRef}
-						onDismiss={() => setIsFormVisible(false)}
-					/>
-				)}
-			</View>
-		</ScrollView>
+		<SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
+			<ScrollView showsVerticalScrollIndicator={true}>
+				<View style={styles.container}>
+					<Header title="My Todos" onButtonPress={() => handleOpenModal()} />
+					{renderData()}
+					{isFormVisible && (
+						<TodoForm
+							setFetching={setfetching}
+							editing={editing}
+							todoData={todo}
+							ref={bottomSheetRef}
+							onDismiss={() => setIsFormVisible(false)}
+						/>
+					)}
+				</View>
+			</ScrollView>
+		</SafeAreaView>
 	);
 };
 const styles = StyleSheet.create({
@@ -201,31 +205,33 @@ const styles = StyleSheet.create({
 		flex: 1,
 		padding: 20,
 	},
-	button: {
-		backgroundColor: "#274690",
-		borderRadius: 5,
+	addButton: {
+		position: "absolute",
+		bottom: 0,
+		right: 20,
+		backgroundColor: COLORS.button,
+		borderRadius: 30,
 		padding: 10,
 		alignItems: "center",
 		justifyContent: "center",
-		marginVertical: 10,
+		zIndex: 1,
 	},
 	todoContainer: {
 		flexDirection: "row",
 		alignItems: "center",
 		marginVertical: 5,
-		backgroundColor: "#fff",
+		backgroundColor: COLORS.box,
 		padding: 10,
 		borderRadius: 20,
+		borderColor: "grey",
 	},
 	todo: {
 		flexDirection: "row",
 		alignItems: "center",
 		flex: 1,
+		color: COLORS.text,
 	},
-	buttonText: {
-		color: "#fff",
-		textAlign: "center",
-	},
+
 	contentContainer: {
 		flex: 1,
 		alignItems: "center",

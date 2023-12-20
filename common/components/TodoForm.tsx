@@ -19,6 +19,7 @@ import { FIREBASE_DB } from "../../firebaseConfig";
 import { Todo } from "../models/Todo";
 import { generateTodoSchema } from "../validations/TodoForm";
 import DatePicker from "./DatePicker";
+import { COLORS, FONTS } from "../constants/theme";
 
 interface TodoFormProps {
 	onDismiss: () => void;
@@ -98,6 +99,7 @@ const TodoForm = forwardRef<BottomSheetModal | null, TodoFormProps>(
 					topInset={inset.top}
 					ref={ref}
 					index={0}
+					backgroundStyle={{ backgroundColor: COLORS.background }}
 					snapPoints={snapPoints}
 					enablePanDownToClose={true}
 					onDismiss={onDismiss}>
@@ -164,6 +166,7 @@ const styles = StyleSheet.create({
 		borderRadius: 5,
 		padding: 10,
 		marginVertical: 5,
+		fontFamily: FONTS.roboto,
 	},
 	datePicker: {
 		flexDirection: "row",
@@ -175,21 +178,25 @@ const styles = StyleSheet.create({
 	label: {
 		fontSize: 16,
 		fontWeight: "bold",
+		fontFamily: FONTS.roboto,
 	},
 	button: {
-		backgroundColor: "#274690",
-		borderRadius: 5,
+		backgroundColor: COLORS.button,
+		borderRadius: 10,
 		padding: 10,
 		alignItems: "center",
 		justifyContent: "center",
 		width: "100%",
+		marginTop: 15,
 	},
 	buttonText: {
 		color: "#fff",
 		textAlign: "center",
+		fontFamily: FONTS.roboto,
 	},
 	errorText: {
 		color: "red",
+		fontFamily: FONTS.roboto,
 	},
 });
 
