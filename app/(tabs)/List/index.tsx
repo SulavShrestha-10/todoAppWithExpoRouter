@@ -1,14 +1,14 @@
 import { AntDesign, Entypo } from "@expo/vector-icons";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import { addDays, format, isSameDay, isToday, isTomorrow } from "date-fns";
+import { addDays, format, isAfter, isBefore, isSameDay, isToday, isTomorrow } from "date-fns";
 import { collection, deleteDoc, doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import React, { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { ScrollView } from "react-native-virtualized-view";
+import { useAuth } from "../../../AuthContext";
 import TodoForm from "../../../common/components/TodoForm";
 import { Todo } from "../../../common/models/Todo";
 import { FIREBASE_DB } from "../../../firebaseConfig";
-import { useAuth } from "../../../AuthContext";
 
 const initialTodoState: Todo = {
 	id: "",
@@ -21,7 +21,7 @@ const initialTodoState: Todo = {
 
 const List = () => {
 	const { user } = useAuth();
-	const [loading, setLoading] = useState(true);
+	const [fetching, setfetching] = useState(true);
 	const [todos, setTodos] = useState<Todo[]>([]);
 	const [editing, setEditing] = useState(false);
 	const [todo, setTodo] = useState<Todo>(initialTodoState);
@@ -36,6 +36,7 @@ const List = () => {
 	}, [isFormVisible]);
 
 	useEffect(() => {
+		setfetching(true);
 		const todosRef = collection(FIREBASE_DB, "todos");
 		const subscriber = onSnapshot(todosRef, {
 			next: (snapshot) => {
@@ -47,7 +48,11 @@ const List = () => {
 					}
 				});
 				setTodos(todos);
-				setLoading(false);
+				setfetching(false);
+			},
+			error: (error) => {
+				console.error("Error fetching data:", error);
+				setfetching(false);
 			},
 		});
 		return () => subscriber();
@@ -115,44 +120,77 @@ const List = () => {
 			</View>
 		);
 	};
-	const todayTodos = todos.filter((todo) => isSameDay(new Date(todo.date), new Date()));
-	const tomorrowTodos = todos.filter((todo) => isSameDay(new Date(todo.date), addDays(new Date(), 1)));
-	const remainingTodos = todos.filter(
-		(todo) => !isSameDay(new Date(todo.date), new Date()) && !isSameDay(new Date(todo.date), addDays(new Date(), 1))
+	const today = new Date();
+	const todayTodos = todos.filter(
+		(todo) => isSameDay(new Date(todo.date), today) || (isBefore(new Date(todo.date), today) && todo.done === true)
 	);
+
+	const tomorrowTodos = todos.filter((todo) => isSameDay(new Date(todo.date), addDays(today, 1)));
+	const remainingTodos = todos.filter(
+		(todo) => isBefore(new Date(todo.date), today) && !isBefore(new Date(todo.date), addDays(today, 1))
+	);
+	const incompleteTodos = todos.filter((todo) => isBefore(new Date(todo.date), today) && todo.done !== true);
+
 	const allTodos = [
 		{ title: "Today", data: todayTodos },
 		{ title: "Tomorrow", data: tomorrowTodos },
 		{ title: "Later", data: remainingTodos },
+		{ title: "Incomplete", data: incompleteTodos },
 	];
 	const emptyView = () => {
-		return loading ? (
-			<ActivityIndicator animating={loading} size="large" color="#0000ff" />
-		) : (
+		return !fetching ? (
 			<View style={{ flex: 1, alignItems: "center" }}>
 				<Text>No todos available!</Text>
 			</View>
+		) : null;
+	};
+	const renderData = () => {
+		return (
+			<View>
+				{fetching ? (
+					<ActivityIndicator animating={fetching} size="large" color="#0000ff" />
+				) : (
+					<>
+						{allTodos.map(
+							(category) =>
+								category.data.length > 0 && (
+									<View key={category.title} style={{ marginBottom: 15 }}>
+										<Text style={{ fontSize: 18, fontWeight: "bold" }}>{category.title}</Text>
+										<FlatList
+											data={category.data}
+											renderItem={renderTodos}
+											keyExtractor={(item) => item.id}
+											ListEmptyComponent={emptyView}
+										/>
+									</View>
+								)
+						)}
+						{todos.length === 0 && (
+							<Text style={{ fontSize: 18, fontWeight: "bold", textAlign: "center" }}>
+								Add your todos to view them in the list.
+							</Text>
+						)}
+					</>
+				)}
+			</View>
 		);
 	};
+
 	return (
 		<ScrollView showsVerticalScrollIndicator={true}>
 			<View style={styles.container}>
-				{allTodos.map((category) => (
-					<View key={category.title} style={{ marginBottom: 15 }}>
-						<Text style={{ fontSize: 18, fontWeight: "bold" }}>{category.title}</Text>
-						<FlatList
-							data={category.data}
-							renderItem={renderTodos}
-							keyExtractor={(item) => item.id}
-							ListEmptyComponent={emptyView}
-						/>
-					</View>
-				))}
+				{renderData()}
 				<TouchableOpacity style={styles.button} onPress={() => handleOpenModal()}>
 					<Text style={styles.buttonText}>Open</Text>
 				</TouchableOpacity>
 				{isFormVisible && (
-					<TodoForm editing={editing} todoData={todo} ref={bottomSheetRef} onDismiss={() => setIsFormVisible(false)} />
+					<TodoForm
+						setFetching={setfetching}
+						editing={editing}
+						todoData={todo}
+						ref={bottomSheetRef}
+						onDismiss={() => setIsFormVisible(false)}
+					/>
 				)}
 			</View>
 		</ScrollView>
@@ -161,7 +199,7 @@ const List = () => {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		paddingHorizontal: 20,
+		padding: 20,
 	},
 	button: {
 		backgroundColor: "#274690",
@@ -177,7 +215,7 @@ const styles = StyleSheet.create({
 		marginVertical: 5,
 		backgroundColor: "#fff",
 		padding: 10,
-		borderRadius: 5,
+		borderRadius: 20,
 	},
 	todo: {
 		flexDirection: "row",
