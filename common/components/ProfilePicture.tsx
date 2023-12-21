@@ -1,16 +1,17 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, StyleProp, ViewStyle } from "react-native";
 
 interface ProfilePictureProps {
 	firstName: string | undefined;
 	lastName: string | undefined;
+	style?: StyleProp<ViewStyle>;
 }
 
-function ProfilePicture({ firstName, lastName }: ProfilePictureProps) {
+function ProfilePicture({ firstName, lastName, style }: ProfilePictureProps) {
 	const initials = `${firstName?.charAt(0)}${lastName?.charAt(0)}`;
 
 	return (
-		<View style={styles.profilePicContainer}>
+		<View style={[styles.profilePicContainer, style]}>
 			<Text style={styles.profilePicText}>{initials}</Text>
 		</View>
 	);
@@ -18,16 +19,16 @@ function ProfilePicture({ firstName, lastName }: ProfilePictureProps) {
 
 const styles = StyleSheet.create({
 	profilePicContainer: {
-		width: 40,
-		height: 40,
+		width: 80,
+		height: 80,
 		borderRadius: 20,
-		backgroundColor: "#3498db",
+		backgroundColor: "#E5922D",
 		alignItems: "center",
 		justifyContent: "center",
 		marginRight: 10,
 	},
 	profilePicText: {
-		fontSize: 16,
+		fontSize: 28,
 		color: "#fff",
 	},
 });

@@ -27,7 +27,7 @@ const Page = () => {
 		onSubmit: async (values) => {
 			try {
 				const res = await signInWithEmailAndPassword(auth, values.email, values.password);
-				router.replace("/(tabs)/List");
+				router.replace("/(tabs)");
 				console.log("User Logged in!");
 			} catch (error: any) {
 				alert("Login up failed: " + error.message);
@@ -37,7 +37,7 @@ const Page = () => {
 	return (
 		<View style={styles.container}>
 			<Header
-				style={{ marginTop: 100 }}
+				style={{ marginTop: 100, paddingVertical: 60 }}
 				title="Welcome Back"
 				subTitle="Please enter you e-mail and password to login"
 			/>
