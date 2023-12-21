@@ -112,7 +112,7 @@ const List = () => {
 					{!item.done && (
 						<AntDesign name="edit" size={30} color="black" style={{ marginRight: 5 }} onPress={() => editItem()} />
 					)}
-					<AntDes
+					<AntDesign
 						name="delete"
 						size={30}
 						color="red"
