@@ -5,12 +5,12 @@ import { collection, deleteDoc, doc, getDoc, onSnapshot, updateDoc } from "fireb
 import React, { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View, SafeAreaView } from "react-native";
 import { ScrollView } from "react-native-virtualized-view";
-import { useAuth } from "../../../AuthContext";
-import TodoForm from "../../../common/components/TodoForm";
-import { Todo } from "../../../common/models/Todo";
-import { FIREBASE_DB } from "../../../firebaseConfig";
-import { COLORS, FONTS } from "../../../common/constants/theme";
-import Header from "../../../common/components/Header";
+import { useAuth } from "../../AuthContext";
+import TodoForm from "../../common/components/TodoForm";
+import { Todo } from "../../common/models/Todo";
+import { FIREBASE_DB } from "../../firebaseConfig";
+import { COLORS, FONTS } from "../../common/constants/theme";
+import Header from "../../common/components/Header";
 
 const initialTodoState: Todo = {
 	id: "",
@@ -126,7 +126,7 @@ const List = () => {
 	};
 	const today = new Date();
 	const todayTodos = todos.filter(
-		(todo) => isSameDay(new Date(todo.date), today) || (isBefore(new Date(todo.date), today) && todo.done === true)
+		(todo) => isSameDay(new Date(todo.date), today) || (isSameDay(new Date(todo.date), today) && todo.done === true)
 	);
 
 	const tomorrowTodos = todos.filter((todo) => isSameDay(new Date(todo.date), addDays(today, 1)));
@@ -152,7 +152,7 @@ const List = () => {
 		return (
 			<View>
 				{fetching ? (
-					<ActivityIndicator animating={fetching} size="large" color="#0000ff" />
+					<ActivityIndicator animating={fetching} size="large" color={COLORS.button} />
 				) : (
 					<>
 						{allTodos.map(
@@ -184,7 +184,12 @@ const List = () => {
 		<SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
 			<ScrollView showsVerticalScrollIndicator={true}>
 				<View style={styles.container}>
-					<Header title="My Todos" onButtonPress={() => handleOpenModal()} />
+					<View style={{ flexDirection: "row", alignItems: "center" }}>
+						<Header style={{ paddingVertical: 50, flex: 1 }} title="My Todos" />
+						<TouchableOpacity style={styles.button} onPress={() => handleOpenModal()}>
+							<Entypo name="add-to-list" size={24} color="white" />
+						</TouchableOpacity>
+					</View>
 					{renderData()}
 					{isFormVisible && (
 						<TodoForm
@@ -231,10 +236,22 @@ const styles = StyleSheet.create({
 		flex: 1,
 		color: COLORS.text,
 	},
-
 	contentContainer: {
 		flex: 1,
 		alignItems: "center",
+	},
+	button: {
+		backgroundColor: COLORS.button,
+		borderRadius: 10,
+		padding: 10,
+		alignItems: "center",
+		justifyContent: "center",
+		marginTop: 15,
+	},
+	buttonText: {
+		color: "#fff",
+		textAlign: "center",
+		fontFamily: FONTS.roboto,
 	},
 });
 export default List;

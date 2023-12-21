@@ -1,28 +1,21 @@
 import React, { SetStateAction, useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { useAuth } from "../../../AuthContext";
-import { User } from "../../../common/models/User";
-import { getUserData } from "../../../common/services/userService";
-const initialUserState: User = {
-	firstName: "",
-	lastName: "",
-	dateOfBirth: null,
-};
+import { useAuth } from "../../AuthContext";
+import { UserInfo } from "../../common/models/User";
+import { getUserData } from "../../common/services/userService";
+
 const Details = () => {
-	const { user } = useAuth();
-	const [userData, setUserData] = useState<User | null>(initialUserState);
+	const { user, getUserDetails } = useAuth();
+	const [userData, setUserData] = useState<UserInfo | null>(null);
 
 	useEffect(() => {
-		const fetchUserData = async () => {
-			if (user) {
-				const userInfo = await getUserData(user.uid);
-				if (userInfo) {
-					setUserData(userInfo as unknown as SetStateAction<User | null>);
-				}
-			}
+		const fetchData = async () => {
+			const data = await getUserDetails();
+			setUserData(data);
 		};
-		fetchUserData();
-	}, [user]);
+
+		fetchData();
+	}, [getUserDetails]);
 
 	return (
 		<View style={styles.container}>

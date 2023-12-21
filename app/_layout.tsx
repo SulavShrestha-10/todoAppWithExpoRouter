@@ -1,3 +1,4 @@
+import "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { Stack, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -13,17 +14,13 @@ const AuthNavigator = () => {
 	console.log("User: ", user);
 	useEffect(() => {
 		if (user) {
-			router.replace("/(tabs)/List");
+			router.replace("/(tabs)");
 		}
 	}, [user, router]);
 
 	return (
 		<Stack screenOptions={{ headerShown: false }}>
-			{!user ? (
-				<Stack.Screen name="index" />
-			) : (
-				<Stack.Screen name="(tabs)"/>
-			)}
+			{!user ? <Stack.Screen name="index" /> : <Stack.Screen name="(tabs)" />}
 		</Stack>
 	);
 };

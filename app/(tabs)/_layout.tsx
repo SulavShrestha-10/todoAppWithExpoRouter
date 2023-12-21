@@ -1,27 +1,71 @@
-import { Tabs } from "expo-router";
+import { Drawer } from "expo-router/drawer";
 import React from "react";
-import { Entypo } from "@expo/vector-icons";
-
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { AntDesign } from "@expo/vector-icons";
+import CustomDrawerComponent from "../../common/components/CustomeDrawerComponent";
+import { COLORS, FONTS } from "../../common/constants/theme";
+import { Text } from "react-native";
 const Layout = () => {
 	return (
-		<Tabs>
-			<Tabs.Screen
-				name="List"
-				options={{
-					headerShown: false,
-					tabBarIcon: ({ size, color }) => <Entypo name="home" size={size} color={color} />,
-					title: "Home",
+		<GestureHandlerRootView style={{ flex: 1 }}>
+			<Drawer
+				screenOptions={{
+					headerTitle: "",
+					headerStyle: { backgroundColor: COLORS.background },
+					drawerActiveBackgroundColor: COLORS.box,
+					drawerActiveTintColor: COLORS.text,
 				}}
-			/>
-			<Tabs.Screen
-				name="Menu"
-				options={{
-					headerShown: false,
-					tabBarIcon: ({ size, color }) => <Entypo name="menu" size={size} color={color} />,
-					title: "Menu",
-				}}
-			/>
-		</Tabs>
+				drawerContent={CustomDrawerComponent}>
+				<Drawer.Screen
+					name="index"
+					options={{
+						drawerLabel: ({ focused, color }) => (
+							<Text
+								style={{
+									fontFamily: FONTS.roboto,
+									fontWeight: focused ? "bold" : "normal",
+									color: color,
+								}}>
+								Home
+							</Text>
+						),
+						drawerIcon: ({ color, size }) => <AntDesign name="home" size={size} color={color} />,
+					}}
+				/>
+				<Drawer.Screen
+					name="changePassword"
+					options={{
+						drawerLabel: ({ focused, color }) => (
+							<Text
+								style={{
+									fontFamily: FONTS.roboto,
+									fontWeight: focused ? "bold" : "normal",
+									color: color,
+								}}>
+								Change Password
+							</Text>
+						),
+						drawerIcon: ({ color, size }) => <AntDesign name="unlock" size={size} color={color} />,
+					}}
+				/>
+				<Drawer.Screen
+					name="details"
+					options={{
+						drawerLabel: ({ focused, color }) => (
+							<Text
+								style={{
+									fontFamily: FONTS.roboto,
+									fontWeight: focused ? "bold" : "normal",
+									color: color,
+								}}>
+								Details
+							</Text>
+						),
+						drawerIcon: ({ color, size }) => <AntDesign name="profile" size={size} color={color} />,
+					}}
+				/>
+			</Drawer>
+		</GestureHandlerRootView>
 	);
 };
 

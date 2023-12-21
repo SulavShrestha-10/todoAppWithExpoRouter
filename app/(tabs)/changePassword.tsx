@@ -2,8 +2,8 @@ import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 
 import { useFormik } from "formik";
 import React from "react";
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { useAuth } from "../../../AuthContext";
-import { generateChangePasswordSchema } from "../../../common/validations/changePassword";
+import { useAuth } from "../../AuthContext";
+import { generateChangePasswordSchema } from "../../common/validations/changePassword";
 
 const ChangePassword = () => {
 	const { user } = useAuth();
