@@ -1,12 +1,18 @@
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "firebase/auth";
 import { useFormik } from "formik";
-import React from "react";
+import React, { useState } from "react";
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useAuth } from "../../AuthContext";
 import { generateChangePasswordSchema } from "../../common/validations/changePassword";
+import Header from "../../common/components/Header";
+import { COLORS, FONTS } from "../../common/constants/theme";
+import { Entypo } from "@expo/vector-icons";
 
 const ChangePassword = () => {
 	const { user } = useAuth();
+	const [showCurPassword, setCurShowPassword] = useState(false);
+	const [showNewPassword, setNewShowPassword] = useState(false);
+	const [showConfirmPassword, setConfirmShowPassword] = useState(false);
 	const labels = {
 		currentPassword: "Current Password",
 		newPassword: "New Password",
@@ -43,44 +49,75 @@ const ChangePassword = () => {
 
 	return (
 		<View style={styles.container}>
-			<Text style={styles.text}>Change Password</Text>
-
+			<Header
+				title="Show Password"
+				subTitle="Update your account security by changing your password"
+				style={{ paddingVertical: 75 }}
+			/>
 			<View style={styles.inputContainer}>
 				<Text style={styles.label}>{labels.currentPassword}</Text>
-				<TextInput
-					style={styles.input}
-					placeholder={`Enter ${labels.currentPassword}`}
-					secureTextEntry
-					onChangeText={handleChange("currentPassword")}
-					onBlur={handleBlur("currentPassword")}
-					value={values.currentPassword}
-				/>
+				<View style={styles.input}>
+					<TextInput
+						style={{ flex: 1, fontFamily: FONTS.roboto }}
+						placeholder={`Enter ${labels.currentPassword}`}
+						secureTextEntry={!showCurPassword}
+						onChangeText={handleChange("currentPassword")}
+						onBlur={handleBlur("currentPassword")}
+						value={values.currentPassword}
+					/>
+					<TouchableOpacity onPress={() => setCurShowPassword(!showCurPassword)}>
+						{showCurPassword ? (
+							<Entypo name="eye-with-line" size={24} color="black" />
+						) : (
+							<Entypo name="eye" size={24} color="black" />
+						)}
+					</TouchableOpacity>
+				</View>
 				<Text style={styles.errorText}>{touched.currentPassword && errors.currentPassword}</Text>
 			</View>
 
 			<View style={styles.inputContainer}>
 				<Text style={styles.label}>{labels.newPassword}</Text>
-				<TextInput
-					style={styles.input}
-					placeholder={`Enter ${labels.newPassword}`}
-					secureTextEntry
-					onChangeText={handleChange("newPassword")}
-					onBlur={handleBlur("newPassword")}
-					value={values.newPassword}
-				/>
+				<View style={styles.input}>
+					<TextInput
+						style={{ flex: 1, fontFamily: FONTS.roboto }}
+						placeholder={`Enter ${labels.newPassword}`}
+						secureTextEntry={!showNewPassword}
+						onChangeText={handleChange("newPassword")}
+						onBlur={handleBlur("newPassword")}
+						value={values.newPassword}
+					/>
+					<TouchableOpacity onPress={() => setNewShowPassword(!showNewPassword)}>
+						{showNewPassword ? (
+							<Entypo name="eye-with-line" size={24} color="black" />
+						) : (
+							<Entypo name="eye" size={24} color="black" />
+						)}
+					</TouchableOpacity>
+				</View>
 				<Text style={styles.errorText}>{touched.newPassword && errors.newPassword}</Text>
 			</View>
 
 			<View style={styles.inputContainer}>
 				<Text style={styles.label}>{labels.confirmPassword}</Text>
-				<TextInput
-					style={styles.input}
-					placeholder={`Enter ${labels.confirmPassword}`}
-					secureTextEntry
-					onChangeText={handleChange("confirmPassword")}
-					onBlur={handleBlur("confirmPassword")}
-					value={values.confirmPassword}
-				/>
+				<View style={styles.input}>
+					<TextInput
+						style={{ flex: 1, fontFamily: FONTS.roboto }}
+						placeholder={`Enter ${labels.confirmPassword}`}
+						secureTextEntry={!showConfirmPassword}
+						onChangeText={handleChange("confirmPassword")}
+						onBlur={handleBlur("confirmPassword")}
+						value={values.confirmPassword}
+					/>
+					<TouchableOpacity onPress={() => setConfirmShowPassword(!showConfirmPassword)}>
+						{showConfirmPassword ? (
+							<Entypo name="eye-with-line" size={24} color="black" />
+						) : (
+							<Entypo name="eye" size={24} color="black" />
+						)}
+					</TouchableOpacity>
+				</View>
+
 				<Text style={styles.errorText}>{touched.confirmPassword && errors.confirmPassword}</Text>
 			</View>
 
@@ -94,30 +131,33 @@ const ChangePassword = () => {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		alignItems: "center",
-		padding: 20,
+		paddingHorizontal: 20,
+		backgroundColor: COLORS.background,
 	},
 	text: {
 		fontSize: 18,
 		marginBottom: 10,
+		fontFamily: FONTS.roboto,
 	},
 	inputContainer: {
 		width: "100%",
-		marginBottom: 10,
 	},
 	label: {
 		fontSize: 16,
-		marginBottom: 5,
+		fontFamily: FONTS.roboto,
 	},
 	input: {
-		height: 40,
-		borderColor: "gray",
-		borderWidth: 1,
-		padding: 10,
+		flexDirection: "row",
 		width: "100%",
+		borderWidth: 1,
+		borderRadius: 10,
+		padding: 10,
+		marginVertical: 10,
+		fontFamily: FONTS.roboto,
 	},
 	errorText: {
 		color: "red",
+		fontFamily: FONTS.roboto,
 	},
 	button: {
 		backgroundColor: "#274690",

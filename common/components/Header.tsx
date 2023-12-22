@@ -9,9 +9,9 @@ interface HeaderProps {
 	style?: ViewStyle;
 }
 
-function Header({ title, subTitle, style }: HeaderProps): JSX.Element {
+function Header({ title, subTitle, style }: HeaderProps) {
 	return (
-		<View style={[styles.container, style]}>
+		<View style={[style]}>
 			<Text style={styles.title}>{title}</Text>
 			{subTitle && <Text style={styles.subTitle}>{subTitle}</Text>}
 		</View>
@@ -19,14 +19,10 @@ function Header({ title, subTitle, style }: HeaderProps): JSX.Element {
 }
 
 const styles = StyleSheet.create({
-	container: {
-		paddingVertical: 75,
-	},
 	title: {
 		fontSize: 24,
 		fontWeight: "bold",
 		fontFamily: FONTS.roboto,
-		flex: 1,
 	},
 	subTitle: {
 		fontSize: 16,

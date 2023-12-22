@@ -1,11 +1,11 @@
-import "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import { Stack, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
-import { AuthProvider, useAuth } from "../AuthContext";
 import { useFonts } from "expo-font";
+import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import React, { useEffect } from "react";
 import { ActivityIndicator } from "react-native";
+import "react-native-gesture-handler";
+import { AuthProvider, useAuth } from "../AuthContext";
 
 SplashScreen.preventAutoHideAsync();
 const AuthNavigator = () => {

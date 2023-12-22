@@ -69,6 +69,7 @@ const RegisterPage = () => {
 			<Header
 				title="Create an account"
 				subTitle="Please enter your information to create your account"
+				style={{ paddingVertical: 75 }}
 			/>
 			<Text style={styles.label}>{fieldLabels.firstName}</Text>
 			<TextInput
