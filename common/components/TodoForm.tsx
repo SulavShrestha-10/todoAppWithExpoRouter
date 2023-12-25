@@ -20,6 +20,7 @@ import { Todo } from "../models/Todo";
 import { generateTodoSchema } from "../validations/TodoForm";
 import DatePicker from "./DatePicker";
 import { COLORS, FONTS } from "../constants/theme";
+import Header from "./Header";
 
 interface TodoFormProps {
 	onDismiss: () => void;
@@ -104,6 +105,7 @@ const TodoForm = forwardRef<BottomSheetModal | null, TodoFormProps>(
 					enablePanDownToClose={true}
 					onDismiss={onDismiss}>
 					<View style={styles.contentContainer}>
+						<Header title={`${editing ? "Update" : "Add"} Todo`} />
 						<View style={{ width: "100%" }}>
 							<Text style={styles.label}>{fieldLabels.title}</Text>
 							<TextInput
@@ -139,7 +141,7 @@ const TodoForm = forwardRef<BottomSheetModal | null, TodoFormProps>(
 							<ActivityIndicator animating={loading} size="large" color="#0000ff" />
 						) : (
 							<TouchableOpacity style={styles.button} onPress={() => handleSubmit()}>
-								<Text style={styles.buttonText}>Add</Text>
+								<Text style={styles.buttonText}>{`${editing ? "Update" : "Add"}`}</Text>
 							</TouchableOpacity>
 						)}
 					</View>

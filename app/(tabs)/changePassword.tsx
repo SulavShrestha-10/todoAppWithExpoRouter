@@ -1,7 +1,7 @@
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "firebase/auth";
 import { useFormik } from "formik";
 import React, { useState } from "react";
-import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useAuth } from "../../AuthContext";
 import { generateChangePasswordSchema } from "../../common/validations/changePassword";
 import Header from "../../common/components/Header";
@@ -10,6 +10,7 @@ import { Entypo } from "@expo/vector-icons";
 
 const ChangePassword = () => {
 	const { user } = useAuth();
+	const [loading, setLoading] = useState(false);
 	const [showCurPassword, setCurShowPassword] = useState(false);
 	const [showNewPassword, setNewShowPassword] = useState(false);
 	const [showConfirmPassword, setConfirmShowPassword] = useState(false);
@@ -35,10 +36,7 @@ const ChangePassword = () => {
 				}
 				const credential = EmailAuthProvider.credential(user.email, values.currentPassword);
 				await reauthenticateWithCredential(user, credential);
-
-				// Update the user's password
 				await updatePassword(user, values.newPassword);
-				// Password successfully changed
 				Alert.alert("Success", "Password changed successfully!");
 			} catch (error: any) {
 				console.error("Error changing password: " + error.message);
@@ -52,7 +50,7 @@ const ChangePassword = () => {
 			<Header
 				title="Show Password"
 				subTitle="Update your account security by changing your password"
-				style={{ paddingVertical: 75 }}
+				style={{ paddingVertical: 50 }}
 			/>
 			<View style={styles.inputContainer}>
 				<Text style={styles.label}>{labels.currentPassword}</Text>
@@ -122,7 +120,11 @@ const ChangePassword = () => {
 			</View>
 
 			<TouchableOpacity style={styles.button} onPress={() => handleSubmit()}>
-				<Text style={styles.buttonText}>Change Password</Text>
+				{!loading ? (
+					<Text style={styles.buttonText}>Change Password</Text>
+				) : (
+					<ActivityIndicator animating={loading} size="small" color="#fff" />
+				)}
 			</TouchableOpacity>
 		</View>
 	);
@@ -160,7 +162,7 @@ const styles = StyleSheet.create({
 		fontFamily: FONTS.roboto,
 	},
 	button: {
-		backgroundColor: "#274690",
+		backgroundColor: COLORS.button,
 		borderRadius: 5,
 		padding: 10,
 		alignItems: "center",

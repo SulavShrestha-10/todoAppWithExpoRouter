@@ -75,6 +75,9 @@ const List = () => {
 	}, []);
 
 	const handleOpenModal = () => {
+		setEditing(false);
+		setId("");
+		setTodo(initialTodoState);
 		setIsFormVisible(true);
 	};
 	const renderTodos = ({ item }: { item: Todo }) => {
@@ -105,7 +108,7 @@ const List = () => {
 			if (docSnapshot.exists()) {
 				const todoData = docSnapshot.data() as Todo;
 				setTodo(todoData);
-				handleOpenModal();
+				setIsFormVisible(true);
 				console.log("Todo data:", todoData);
 			} else {
 				console.log("No such document!");
@@ -197,7 +200,7 @@ const List = () => {
 	return (
 		<SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
 			<ScrollView showsVerticalScrollIndicator={true}>
-				<View style={{ flexDirection: "column", backgroundColor: COLORS.box, padding: 20 }}>
+				<View style={styles.greetingContainer}>
 					{loading ? (
 						<ActivityIndicator size="large" color={COLORS.button} />
 					) : (
@@ -227,6 +230,13 @@ const List = () => {
 	);
 };
 const styles = StyleSheet.create({
+	greetingContainer: {
+		flexDirection: "column",
+		backgroundColor: COLORS.box,
+		padding: 20,
+		borderBottomEndRadius: 10,
+		borderBottomStartRadius: 10,
+	},
 	container: {
 		flex: 1,
 		padding: 20,

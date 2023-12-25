@@ -15,6 +15,7 @@ const Page = () => {
 	const router = useRouter();
 	const { authStatus } = useAuth();
 	const [showPassword, setShowPassword] = useState(false);
+	const [loading, setLoading] = useState(false);
 	const auth = FIREBASE_AUTH;
 	const fieldLabels = {
 		email: "Email",
@@ -27,19 +28,22 @@ const Page = () => {
 			password: "",
 		},
 		onSubmit: async (values) => {
+			setLoading(true);
 			try {
 				const res = await signInWithEmailAndPassword(auth, values.email, values.password);
 				router.replace("/(tabs)");
 				console.log("User Logged in!");
 			} catch (error: any) {
 				alert("Login up failed: " + error.message);
+			} finally {
+				setLoading(false);
 			}
 		},
 	});
 	if (authStatus === "loading") {
 		return (
 			<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-				<ActivityIndicator animating={true} size="large" />
+				<ActivityIndicator animating={true} size="large" color={COLORS.button} />
 			</View>
 		);
 	}
@@ -83,7 +87,11 @@ const Page = () => {
 				</View>
 
 				<TouchableOpacity style={styles.button} onPress={() => handleSubmit()}>
-					<Text style={styles.buttonText}>Login</Text>
+					{!loading ? (
+						<Text style={styles.buttonText}>Login</Text>
+					) : (
+						<ActivityIndicator animating={loading} size="small" color="#fff" />
+					)}
 				</TouchableOpacity>
 
 				<View style={styles.registerContainer}>
@@ -144,7 +152,7 @@ const styles = StyleSheet.create({
 	},
 	registerButtonText: {
 		fontSize: 16,
-		color: "#274690",
+		color: COLORS.button,
 		fontWeight: "bold",
 	},
 });

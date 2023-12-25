@@ -1,6 +1,6 @@
 import { useFormik } from "formik";
 import React, { useState } from "react";
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import DatePicker from "../common/components/DatePicker";
 import { generateRegisterSchema } from "../common/validations/RegisterForm";
 import { Register } from "../common/models/Register";
@@ -17,6 +17,7 @@ const RegisterPage = () => {
 	const router = useRouter();
 	const [showPassword, setShowPassword] = useState(false);
 	const [selectedDate, setSelectedDate] = useState(new Date());
+	const [loading, setLoading] = useState(false);
 	const fieldLabels = {
 		firstName: "First Name",
 		lastName: "Last Name",
@@ -69,7 +70,7 @@ const RegisterPage = () => {
 			<Header
 				title="Create an account"
 				subTitle="Please enter your information to create your account"
-				style={{ paddingVertical: 75 }}
+				style={{ paddingVertical: 60 }}
 			/>
 			<Text style={styles.label}>{fieldLabels.firstName}</Text>
 			<TextInput
@@ -126,7 +127,11 @@ const RegisterPage = () => {
 				</TouchableOpacity>
 			</View>
 			<TouchableOpacity style={styles.button} onPress={() => handleSubmit()}>
-				<Text style={styles.buttonText}>Register</Text>
+				{!loading ? (
+					<Text style={styles.buttonText}>Register</Text>
+				) : (
+					<ActivityIndicator animating={loading} size="small" color="#fff" />
+				)}
 			</TouchableOpacity>
 			<View style={styles.registerContainer}>
 				<Text style={styles.registerText}>Already have an account?</Text>
@@ -198,7 +203,7 @@ const styles = StyleSheet.create({
 	},
 	registerButtonText: {
 		fontSize: 16,
-		color: "#274690",
+		color: COLORS.button,
 		fontWeight: "bold",
 	},
 });
