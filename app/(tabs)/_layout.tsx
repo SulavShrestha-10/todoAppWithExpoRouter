@@ -5,6 +5,7 @@ import { AntDesign } from "@expo/vector-icons";
 import CustomDrawerComponent from "../../common/components/CustomeDrawerComponent";
 import { COLORS, FONTS } from "../../common/constants/theme";
 import { Text } from "react-native";
+import { useRouter } from "expo-router";
 const Layout = () => {
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
@@ -30,6 +31,7 @@ const Layout = () => {
 							</Text>
 						),
 						drawerIcon: ({ color, size }) => <AntDesign name="home" size={size} color={color} />,
+						headerStyle: { backgroundColor: COLORS.box },
 					}}
 				/>
 				<Drawer.Screen

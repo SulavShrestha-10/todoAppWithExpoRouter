@@ -1,26 +1,24 @@
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { useFonts } from "expo-font";
-import { Stack, useRouter } from "expo-router";
-import * as SplashScreen from "expo-splash-screen";
+import { Stack, router, useRouter } from "expo-router";
 import React, { useEffect } from "react";
 import { ActivityIndicator } from "react-native";
 import "react-native-gesture-handler";
 import { AuthProvider, useAuth } from "../AuthContext";
 
-SplashScreen.preventAutoHideAsync();
 const AuthNavigator = () => {
-	const { user } = useAuth();
+	const { authStatus } = useAuth();
 	const router = useRouter();
-	console.log("User: ", user);
+	console.log("Auth Status: ", authStatus);
 	useEffect(() => {
-		if (user) {
+		if (authStatus === "success") {
 			router.replace("/(tabs)");
 		}
-	}, [user, router]);
-
+	}, [authStatus, router]);
+	
 	return (
 		<Stack screenOptions={{ headerShown: false }}>
-			{!user ? <Stack.Screen name="index" /> : <Stack.Screen name="(tabs)" />}
+			{authStatus === "idle" ? <Stack.Screen name="index" /> : <Stack.Screen name="(tabs)" />}
 		</Stack>
 	);
 };

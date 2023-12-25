@@ -6,6 +6,7 @@ import { UserInfo } from "./common/models/User";
 
 interface AuthContextProps {
 	user: User | null;
+	authStatus: "loading" | "success" | "idle" | "error" | undefined;
 	getUserDetails: () => Promise<UserInfo | null>;
 }
 
@@ -13,6 +14,7 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [user, setUser] = useState<User | null>(null);
+	const [authStatus, setAuthStatus] = useState<"loading" | "success" | "idle" | "error" | undefined>(undefined);
 
 	const getUserDetails = async (): Promise<UserInfo | null> => {
 		if (user) {
@@ -33,21 +35,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 				return null;
 			}
 		}
-
 		return null;
 	};
 
 	useEffect(() => {
-		const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user) => {
-			setUser(user);
-		});
-
-		return () => {
-			unsubscribe();
+		const fetchData = async () => {
+			try {
+				setAuthStatus("loading"); 
+				const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, async (user) => {
+					setUser(user);
+					if (user) {
+						setAuthStatus("success");
+					} else {
+						setAuthStatus("idle");
+					}
+				});
+				return () => {
+					unsubscribe();
+				};
+			} catch (error) {
+				console.error("Error setting auth status:", error);
+				setAuthStatus("error");
+			}
 		};
-	}, [user]);
 
-	return <AuthContext.Provider value={{ user, getUserDetails }}>{children}</AuthContext.Provider>;
+		fetchData();
+	}, []);
+
+	return <AuthContext.Provider value={{ user, authStatus, getUserDetails }}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {

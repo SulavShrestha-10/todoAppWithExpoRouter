@@ -11,6 +11,8 @@ import { Todo } from "../../common/models/Todo";
 import { FIREBASE_DB } from "../../firebaseConfig";
 import { COLORS, FONTS } from "../../common/constants/theme";
 import Header from "../../common/components/Header";
+import { Greeting } from "../../common/components/Greeting";
+import { UserInfo } from "../../common/models/User";
 
 const initialTodoState: Todo = {
 	id: "",
@@ -22,7 +24,8 @@ const initialTodoState: Todo = {
 };
 
 const List = () => {
-	const { user } = useAuth();
+	const { user, getUserDetails } = useAuth();
+	const [userData, setUserData] = useState<UserInfo | null>(null);
 	const [fetching, setfetching] = useState(true);
 	const [todos, setTodos] = useState<Todo[]>([]);
 	const [editing, setEditing] = useState(false);
@@ -30,7 +33,18 @@ const List = () => {
 	const [id, setId] = useState("");
 	const bottomSheetRef = useRef<BottomSheetModal>(null);
 	const [isFormVisible, setIsFormVisible] = useState(false);
-
+	const [loading, setLoading] = useState(true);
+	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				const data = await getUserDetails();
+				setUserData(data);
+			} finally {
+				setLoading(false);
+			}
+		};
+		fetchData();
+	}, [getUserDetails]);
 	useEffect(() => {
 		if (isFormVisible) {
 			bottomSheetRef.current?.present();
@@ -183,13 +197,20 @@ const List = () => {
 	return (
 		<SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
 			<ScrollView showsVerticalScrollIndicator={true}>
-				<View style={styles.container}>
-					<View style={{ flexDirection: "row", alignItems: "center" }}>
-						<Header style={{ paddingVertical: 50, flex: 1 }} title="My Todos" />
+				<View style={{ flexDirection: "column", backgroundColor: COLORS.box, padding: 20 }}>
+					{loading ? (
+						<ActivityIndicator size="large" color={COLORS.button} />
+					) : (
+						<Greeting firstName={userData?.firstName ?? ""} lastName={userData?.lastName ?? ""} />
+					)}
+					<View style={{ flexDirection: "row", alignItems: "center", paddingVertical: 10 }}>
+						<Header style={{ flex: 1 }} title="My Todos" />
 						<TouchableOpacity style={styles.button} onPress={() => handleOpenModal()}>
 							<Entypo name="add-to-list" size={24} color="white" />
 						</TouchableOpacity>
 					</View>
+				</View>
+				<View style={styles.container}>
 					{renderData()}
 					{isFormVisible && (
 						<TodoForm

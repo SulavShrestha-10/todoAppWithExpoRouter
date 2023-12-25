@@ -21,7 +21,7 @@ function Header({ title, subTitle, style }: HeaderProps) {
 const styles = StyleSheet.create({
 	title: {
 		fontSize: 24,
-		fontWeight: "bold",
+		fontWeight: "700",
 		fontFamily: FONTS.roboto,
 	},
 	subTitle: {

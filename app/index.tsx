@@ -1,7 +1,7 @@
 import { useRouter } from "expo-router";
 import { useFormik } from "formik";
 import React, { useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, TextInput, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { generateLoginSchema } from "../common/validations/LoginForm";
 import { FIREBASE_AUTH } from "../firebaseConfig";
@@ -9,9 +9,11 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import Header from "../common/components/Header";
 import { COLORS, FONTS } from "../common/constants/theme";
 import { Entypo } from "@expo/vector-icons";
+import { useAuth } from "../AuthContext";
 
 const Page = () => {
 	const router = useRouter();
+	const { authStatus } = useAuth();
 	const [showPassword, setShowPassword] = useState(false);
 	const auth = FIREBASE_AUTH;
 	const fieldLabels = {
@@ -34,56 +36,65 @@ const Page = () => {
 			}
 		},
 	});
-	return (
-		<View style={styles.container}>
-			<Header
-				style={{ marginTop: 100, paddingVertical: 60 }}
-				title="Welcome Back"
-				subTitle="Please enter you e-mail and password to login"
-			/>
-
-			<Text style={styles.label}>{fieldLabels.email}</Text>
-			<TextInput
-				placeholder={fieldLabels.email}
-				style={styles.input}
-				onChangeText={handleChange("email")}
-				onBlur={handleBlur("email")}
-				value={values.email}
-				autoCapitalize="none"
-			/>
-
-			<Text style={styles.label}>{fieldLabels.password}</Text>
-			<View style={styles.input}>
-				<TextInput
-					placeholder={fieldLabels.password}
-					style={{ flex: 1, fontFamily: FONTS.roboto }}
-					onChangeText={handleChange("password")}
-					onBlur={handleBlur("password")}
-					value={values.password}
-					autoCapitalize="none"
-					secureTextEntry={!showPassword}
+	if (authStatus === "loading") {
+		return (
+			<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+				<ActivityIndicator animating={true} size="large" />
+			</View>
+		);
+	}
+	if (authStatus === "idle") {
+		return (
+			<View style={styles.container}>
+				<Header
+					style={{ marginTop: 100, paddingVertical: 60 }}
+					title="Welcome Back"
+					subTitle="Please enter you e-mail and password to login"
 				/>
-				<TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-					{showPassword ? (
-						<Entypo name="eye-with-line" size={24} color="black" />
-					) : (
-						<Entypo name="eye" size={24} color="black" />
-					)}
-				</TouchableOpacity>
-			</View>
 
-			<TouchableOpacity style={styles.button} onPress={() => handleSubmit()}>
-				<Text style={styles.buttonText}>Login</Text>
-			</TouchableOpacity>
+				<Text style={styles.label}>{fieldLabels.email}</Text>
+				<TextInput
+					placeholder={fieldLabels.email}
+					style={styles.input}
+					onChangeText={handleChange("email")}
+					onBlur={handleBlur("email")}
+					value={values.email}
+					autoCapitalize="none"
+				/>
 
-			<View style={styles.registerContainer}>
-				<Text style={styles.registerText}>Not registered yet?</Text>
-				<TouchableOpacity style={styles.registerButton} onPress={() => router.push("/register")}>
-					<Text style={styles.registerButtonText}>Sign up</Text>
+				<Text style={styles.label}>{fieldLabels.password}</Text>
+				<View style={styles.input}>
+					<TextInput
+						placeholder={fieldLabels.password}
+						style={{ flex: 1, fontFamily: FONTS.roboto }}
+						onChangeText={handleChange("password")}
+						onBlur={handleBlur("password")}
+						value={values.password}
+						autoCapitalize="none"
+						secureTextEntry={!showPassword}
+					/>
+					<TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+						{showPassword ? (
+							<Entypo name="eye-with-line" size={24} color="black" />
+						) : (
+							<Entypo name="eye" size={24} color="black" />
+						)}
+					</TouchableOpacity>
+				</View>
+
+				<TouchableOpacity style={styles.button} onPress={() => handleSubmit()}>
+					<Text style={styles.buttonText}>Login</Text>
 				</TouchableOpacity>
+
+				<View style={styles.registerContainer}>
+					<Text style={styles.registerText}>Not registered yet?</Text>
+					<TouchableOpacity style={styles.registerButton} onPress={() => router.push("/register")}>
+						<Text style={styles.registerButtonText}>Sign up</Text>
+					</TouchableOpacity>
+				</View>
 			</View>
-		</View>
-	);
+		);
+	}
 };
 const styles = StyleSheet.create({
 	container: {
